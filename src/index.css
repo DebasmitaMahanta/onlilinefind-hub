@@ -1,0 +1,9 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Global Styles */
+body {
+  @apply bg-gray-50 text-gray-800;
+  font-family: 'Poppins', sans-serif;
+}
