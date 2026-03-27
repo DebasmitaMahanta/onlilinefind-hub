@@ -2,6 +2,7 @@ import { useState } from "react";
 import axios from "axios";
 import { toast } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../utils/api";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -20,7 +21,7 @@ const Register = () => {
       setLoading(true);
 
       await axios.post(
-        "https://ecommerce-backend-730a.onrender.com/api/auth/register",
+        api.register,
         { name, email, password }
       );
 

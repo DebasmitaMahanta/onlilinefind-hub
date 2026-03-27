@@ -16,6 +16,8 @@ const ProductForm = () => {
   const [category, setCategory] = useState("");
   const [countInStock, setCountInStock] = useState("");
   const [image, setImage] = useState("");
+  const [imageFile, setImageFile] = useState(null);
+  const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
 
   // Fetch product (Edit mode)
@@ -32,6 +34,7 @@ const ProductForm = () => {
           setCategory(data.category);
           setCountInStock(data.countInStock);
           setImage(data.image);
+          setImageFile(null);
         } catch (error) {
           console.error(error);
         }
@@ -39,6 +42,17 @@ const ProductForm = () => {
 
       fetchProduct();
     }
+
+    const fetchCategories = async () => {
+      try {
+        const { data } = await axios.get("https://ecommerce-backend-730a.onrender.com/api/products/categories");
+        setCategories(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchCategories();
   }, [id, isEdit]);
 
   // Submit
@@ -49,25 +63,36 @@ const ProductForm = () => {
     try {
       const userInfo = JSON.parse(localStorage.getItem("user"));
 
+      const formData = new FormData();
+      formData.append("name", name);
+      formData.append("price", price);
+      formData.append("category", category);
+      formData.append("countInStock", countInStock);
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      } else if (image) {
+        formData.append("image", image);
+      }
+
+      const config = {
+        headers: {
+          Authorization: `Bearer ${userInfo?.token}`,
+          "Content-Type": "multipart/form-data",
+        },
+      };
+
       if (isEdit) {
         await axios.put(
           `https://ecommerce-backend-730a.onrender.com/api/products/${id}`,
-          { name, price, category, countInStock, image },
-          {
-            headers: {
-              Authorization: `Bearer ${userInfo?.token}`,
-            },
-          }
+          formData,
+          config
         );
       } else {
         await axios.post(
           `https://ecommerce-backend-730a.onrender.com/api/products`,
-          { name, price, category, countInStock, image },
-          {
-            headers: {
-              Authorization: `Bearer ${userInfo?.token}`,
-            },
-          }
+          formData,
+          config
         );
       }
 
@@ -101,8 +126,10 @@ const ProductForm = () => {
           />
 
           <SelectField
+            label="Category"
             value={category}
             onChange={(e) => setCategory(e.target.value)}
+            options={categories.length > 0 ? categories : ["Electronics", "Clothing", "Home", "Sports", "Food", "Other"]}
           />
 
           <InputField
@@ -113,10 +140,27 @@ const ProductForm = () => {
           />
 
           <InputField
-            placeholder="Image URL"
+            placeholder="Image URL (optional if uploading file)"
             value={image}
             onChange={(e) => setImage(e.target.value)}
           />
+
+          <div className="flex flex-col">
+            <label className="mb-1 text-sm font-medium">Upload Image</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={(e) => {
+                const file = e.target.files[0];
+                setImageFile(file || null);
+
+                if (file) {
+                  setImage(URL.createObjectURL(file));
+                }
+              }}
+              className="border p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+          </div>
 
           {/* Image Preview */}
           {image && (

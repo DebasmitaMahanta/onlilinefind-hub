@@ -4,6 +4,7 @@ import axios from "axios";
 import { toast } from "react-toastify";
 import { useAuth } from "../context/AuthContext";
 import { Eye, EyeOff } from "lucide-react";
+import api from "../utils/api";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -24,7 +25,7 @@ const Login = () => {
       setLoading(true);
 
       const res = await axios.post(
-        "https://ecommerce-backend-730a.onrender.com/api/auth/login",
+        api.login,
         { email, password }
       );
 

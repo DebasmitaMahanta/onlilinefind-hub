@@ -4,13 +4,15 @@ import { useAuth } from "../context/AuthContext";
 
 const Navbar = () => {
   const [menu, setMenu] = useState(null);
-  const { user, logout } = useAuth();
+  const { user, logout, cart } = useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     logout();
     navigate("/login");
   };
+
+  const cartCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const categories = {
     Men: ["T-Shirts", "Shirts", "Jeans", "Shoes"],
@@ -77,6 +79,16 @@ const Navbar = () => {
           </Link>
         )}
 
+        {/* 📦 My Orders Link */}
+        {user && (
+          <Link
+            to="/orders"
+            className="text-sm hover:text-pink-600"
+          >
+            My Orders
+          </Link>
+        )}
+
         {/* 🔐 Auth */}
         {user ? (
           <button onClick={handleLogout} className="hover:text-pink-600">
@@ -94,10 +106,12 @@ const Navbar = () => {
           className="bg-pink-600 text-white px-4 py-2 rounded-lg relative"
         >
           Cart
-          {/* 🔥 Cart Badge (static for now) */}
-          <span className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">
-            0
-          </span>
+          {/* 🔥 Cart Badge with dynamic count */}
+          {cartCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-black text-white text-xs px-2 rounded-full">
+              {cartCount}
+            </span>
+          )}
         </button>
       </div>
     </nav>
